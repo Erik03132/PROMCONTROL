@@ -1,9 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
+
 const SYSTEM_INSTRUCTION = `
 Ты — интеллектуальный ассистент компании "ПРОМ КОНТРОЛЬ".
-Отвечай кратко, профессионально, без использования Markdown (никаких звездочек и решеток).
-Твои темы: АСУ ТП, инжиниринг, ТЗ по ГОСТ.
+Отвечай кратко, профессионально, без использования Markdown (никаких звёздочек и решёток).
+Тема тема: АСУ ТП, инжиниринг, ТЗ по ГОСТ.
 `;
 
 export default async function handler(
@@ -26,8 +27,10 @@ export default async function handler(
       return res.status(500).json({ error: 'API_KEY not configured' });
     }
 
-    const ai = new GoogleGenerativeAI( apiKey );    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+    const ai = new GoogleGenAI({ apiKey });
+    
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-exp',
       contents: message,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -35,7 +38,7 @@ export default async function handler(
       },
     });
 
-    const text = response.text;
+    const text = result.text;
 
     if (!text) {
       return res.status(500).json({ error: 'No response from AI' });
@@ -44,9 +47,9 @@ export default async function handler(
     return res.status(200).json({ response: text });
   } catch (error: any) {
     console.error('Gemini API Error:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Failed to get response from AI',
-      details: error.message 
+      details: error.message
     });
   }
 }
