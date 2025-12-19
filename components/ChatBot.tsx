@@ -1,6 +1,5 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { getGeminiResponse } from '../services/geminiService';
 
 interface Message {
   role: 'user' | 'bot';
@@ -39,7 +38,13 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
       setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: 'bot', text: "Техническая ошибка. Пожалуйста, попробуйте позже." }]);
-    } finally {
+      const apiResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: trimmedInput }),
+      });
+      const data = await apiResponse.json();
+      const botResponse = data.response || 'Произошла ошибка при получении ответа.';
       setIsLoading(false);
     }
   };
