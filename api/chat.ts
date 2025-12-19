@@ -42,3 +42,20 @@ export default async function handler(
         temperature: 0.7,
       },
     });
+
+
+      const text = result.text;
+
+    if (!text) {
+      return res.status(500).json({ error: 'No response from AI' });
+    }
+
+    return res.status(200).json({ response: text });
+  } catch (error: any) {
+    console.error('Gemini API Error:', error);
+    return res.status(500).json({
+      error: 'Failed to get response from AI',
+      details: error.message
+    });
+  }
+}
