@@ -14,9 +14,14 @@ const SYSTEM_INSTRUCTION = `
 
 export async function getGeminiResponse(userPrompt: string) {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      throw new Error("API_KEY is not defined in environment variables.");
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: "gemini-3-flash-preview",
       contents: userPrompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -24,12 +29,10 @@ export async function getGeminiResponse(userPrompt: string) {
       },
     });
 
-    // Strip out any potential asterisks and trim the response
     const cleanText = (response.text || "").replace(/\*/g, '').trim();
-    
-    return cleanText || "Извините, произошла ошибка при генерации ответа. Попробуйте позже.";
+    return cleanText || "Извините, произошла ошибка при генерации ответа.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Произошла ошибка связи с ИИ. Пожалуйста, проверьте подключение или попробуйте позже.";
+    return "Произошла ошибка связи с ИИ. Пожалуйста, попробуйте позже.";
   }
 }
