@@ -2,54 +2,39 @@
 import { GoogleGenAI } from "@google/genai";
 
 const SYSTEM_INSTRUCTION = `
-Ты — интеллектуальный ассистент компании "ПРОМ КОНТРОЛЬ".
-ПРАВИЛА:
-1. Отвечай максимально лаконично и по делу.
-2. Не используй разметку Markdown (звездочки, решетки).
-3. Тон экспертный, инженерный.
-4. Темы: АСУ ТП, проектирование, ТЗ по ГОСТ, аудит оборудования.
+Ты — интеллектуальный ассистент компании "ПРОМ КОНТРОЛЬ". 
+Отвечай кратко, профессионально, без использования Markdown (никаких звездочек и решеток). 
+Твои темы: АСУ ТП, инжиниринг, ТЗ по ГОСТ.
 `;
 
 export async function getGeminiResponse(userPrompt: string) {
   try {
-    const apiKey = process.env.API_KEY;
-
-    if (!apiKey) {
-      console.error("Критическая ошибка: Переменная окружения API_KEY не найдена. Проверьте настройки Vercel!");
-      return "Системная ошибка: API ключ не настроен. Пожалуйста, убедитесь, что вы добавили переменную API_KEY в Vercel и сделали редеплой.";
-    }
-
-    // Инициализация строго по гайдлайнам
-    const ai = new GoogleGenAI({ apiKey });
+    // Согласно инструкциям: создаем экземпляр прямо перед вызовом
+    // и используем process.env.API_KEY напрямую.
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: userPrompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.5,
+        temperature: 0.7,
       },
     });
 
-    // Обращение к .text как к свойству
     const text = response.text;
+    if (!text) throw new Error("Empty response");
 
-    if (!text) {
-      throw new Error("Модель вернула пустой ответ");
-    }
-
+    // Очистка от Markdown если модель его применила
     return text.replace(/[*#_~`]/g, '').trim();
   } catch (error: any) {
-    console.error("Gemini API Error Context:", error);
+    console.error("Gemini Service Error Detail:", error);
     
-    if (error.message?.includes("API key not valid")) {
-      return "Ошибка: Ваш API ключ недействителен. Проверьте его в Google AI Studio.";
+    // Если ошибка связана с ключом, API вернет 403 или 400
+    if (error.message?.includes("API_KEY_INVALID") || error.message?.includes("API key not found")) {
+      return "Ошибка доступа: API ключ не распознан. Пожалуйста, проверьте настройки переменной API_KEY в Vercel и убедитесь, что был выполнен Redeploy.";
     }
     
-    if (error.message?.includes("User location is not supported")) {
-      return "Ошибка: Данный регион не поддерживается Google API. Попробуйте использовать другой сервер или VPN для деплоя (хотя для Vercel это редкость).";
-    }
-
-    return "Произошла ошибка при связи с инженерным модулем. Пожалуйста, попробуйте позже.";
+    return "Не удалось связаться с ИИ-модулем. Пожалуйста, попробуйте позже или используйте форму обратной связи.";
   }
 }

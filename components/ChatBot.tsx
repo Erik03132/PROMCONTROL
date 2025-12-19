@@ -14,11 +14,22 @@ interface ChatBotProps {
 
 const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', text: 'Здравствуйте! Я инженерный ассистент ПРОМ КОНТРОЛЬ. Опишите вашу задачу по автоматизации или инжинирингу.' }
+    { role: 'bot', text: 'Здравствуйте! Я инженерный ассистент ПРОМ КОНТРОЛЬ. Опишите вашу задачу.' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Диагностика при монтировании
+  useEffect(() => {
+    if (isOpen) {
+      const hasKey = !!process.env.API_KEY;
+      console.log(`[Diagnostic] API_KEY present in browser: ${hasKey}`);
+      if (!hasKey) {
+        console.warn("[Warning] API_KEY is undefined. If this is Vercel, check Settings -> Environment Variables and REDEPLOY.");
+      }
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -38,8 +49,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
       const botResponse = await getGeminiResponse(trimmedInput);
       setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
     } catch (err) {
-      console.error("Chat Interaction Error:", err);
-      setMessages(prev => [...prev, { role: 'bot', text: "Не удалось получить ответ. Пожалуйста, свяжитесь с нами через форму на сайте или по email." }]);
+      setMessages(prev => [...prev, { role: 'bot', text: "Произошла техническая ошибка. Пожалуйста, повторите запрос." }]);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +99,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
             <div className="flex justify-start">
               <div className="bg-neutral-900 text-neutral-400 border border-white/5 p-4 rounded-3xl rounded-tl-none text-[12px] flex items-center gap-3">
                 <iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>
-                Обработка запроса...
+                Обработка...
               </div>
             </div>
           )}
@@ -109,13 +119,10 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
             <button 
               onClick={handleSendMessage}
               disabled={isLoading || !inputValue.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#facf39] text-black flex items-center justify-center hover:bg-[#ffe066] transition-all disabled:opacity-20 shadow-lg active:scale-95"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#facf39] text-black flex items-center justify-center hover:bg-[#ffe066] transition-all disabled:opacity-20 shadow-lg"
             >
               <iconify-icon icon="solar:send-bold" width="22"></iconify-icon>
             </button>
-          </div>
-          <div className="mt-4 flex justify-center">
-            <p className="text-[8px] text-neutral-700 font-bold uppercase tracking-[0.2em]">Engineering intelligence system</p>
           </div>
         </div>
       </div>
