@@ -29,6 +29,10 @@
             from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
             to { opacity: 1; transform: translateY(0); filter: blur(0px); }
         }
+        @keyframes zoomFadeIn {
+            from { opacity: 0; transform: scale(0.92); filter: blur(10px); }
+            to { opacity: 1; transform: scale(1); filter: blur(0px); }
+        }
         @keyframes shine {
             from { transform: translateX(-100%) skewX(-15deg); }
             to { transform: translateX(200%) skewX(-15deg); }
@@ -47,8 +51,39 @@
                 transform: scale(1.05);
             }
         }
+        
+        /* Sequential Bar Filling Animations */
+        @keyframes barFill-1 { 0%, 0% { opacity: 0.2; transform: scaleY(1); } 5%, 80% { opacity: 1; background-color: #facf39; box-shadow: 0 0 15px rgba(250, 207, 57, 0.5); transform: scaleY(1.05); } 90%, 100% { opacity: 0.2; transform: scaleY(1); } }
+        @keyframes barFill-2 { 0%, 10% { opacity: 0.2; transform: scaleY(1); } 15%, 80% { opacity: 1; background-color: #facf39; box-shadow: 0 0 15px rgba(250, 207, 57, 0.5); transform: scaleY(1.05); } 90%, 100% { opacity: 0.2; transform: scaleY(1); } }
+        @keyframes barFill-3 { 0%, 20% { opacity: 0.2; transform: scaleY(1); } 25%, 80% { opacity: 1; background-color: #facf39; box-shadow: 0 0 15px rgba(250, 207, 57, 0.5); transform: scaleY(1.05); } 90%, 100% { opacity: 0.2; transform: scaleY(1); } }
+        @keyframes barFill-4 { 0%, 30% { opacity: 0.2; transform: scaleY(1); } 35%, 80% { opacity: 1; background-color: #facf39; box-shadow: 0 0 15px rgba(250, 207, 57, 0.5); transform: scaleY(1.05); } 90%, 100% { opacity: 0.2; transform: scaleY(1); } }
+        @keyframes barFill-5 { 0%, 40% { opacity: 0.2; transform: scaleY(1); } 45%, 80% { opacity: 1; background-color: #facf39; box-shadow: 0 0 15px rgba(250, 207, 57, 0.5); transform: scaleY(1.05); } 90%, 100% { opacity: 0.2; transform: scaleY(1); } }
+        @keyframes barFill-6 { 0%, 50% { opacity: 0.2; transform: scaleY(1); } 55%, 80% { opacity: 1; background-color: #facf39; box-shadow: 0 0 15px rgba(250, 207, 57, 0.5); transform: scaleY(1.05); } 90%, 100% { opacity: 0.2; transform: scaleY(1); } }
+        @keyframes barFill-7 { 0%, 60% { opacity: 0.2; transform: scaleY(1); } 65%, 80% { opacity: 1; background-color: #facf39; box-shadow: 0 0 15px rgba(250, 207, 57, 0.5); transform: scaleY(1.05); } 90%, 100% { opacity: 0.2; transform: scaleY(1); } }
+        @keyframes barFill-8 { 0%, 70% { opacity: 0.2; transform: scaleY(1); } 75%, 80% { opacity: 1; background-color: #facf39; box-shadow: 0 0 15px rgba(250, 207, 57, 0.5); transform: scaleY(1.05); } 90%, 100% { opacity: 0.2; transform: scaleY(1); } }
+
+        .animate-bar-1 { animation: barFill-1 4s infinite ease-in-out; }
+        .animate-bar-2 { animation: barFill-2 4s infinite ease-in-out; }
+        .animate-bar-3 { animation: barFill-3 4s infinite ease-in-out; }
+        .animate-bar-4 { animation: barFill-4 4s infinite ease-in-out; }
+        .animate-bar-5 { animation: barFill-5 4s infinite ease-in-out; }
+        .animate-bar-6 { animation: barFill-6 4s infinite ease-in-out; }
+        .animate-bar-7 { animation: barFill-7 4s infinite ease-in-out; }
+        .animate-bar-8 { animation: barFill-8 4s infinite ease-in-out; }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
         .animate-fade-up {
             animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+        .animate-zoom-fade {
+            animation: zoomFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
         }
         .delay-100 { animation-delay: 0.1s; }
@@ -78,6 +113,18 @@
 
         .animate-node-pulse {
             animation: nodePulse 6s infinite;
+        }
+
+        .star {
+            position: fixed;
+            top: 0;
+            background: linear-gradient(to bottom, transparent, #facf39, transparent);
+            width: 1px;
+            height: 80px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: -5;
+            animation: fall linear infinite;
         }
 
         /* Grid Background */

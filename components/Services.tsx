@@ -23,20 +23,24 @@ const Services: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {servicesData.map((svc) => (
-            <div key={svc.id} className="card-shine group relative flex flex-col bg-[#0a0a0a] border border-white/5 rounded-3xl overflow-hidden hover:border-[#facf39]/30 hover:shadow-[0_0_50px_-12px_rgba(250,207,57,0.15)] transition-all duration-500 hover:-translate-y-1">
+          {servicesData.map((svc, i) => (
+            <div 
+              key={svc.id} 
+              className="animate-zoom-fade card-shine group relative flex flex-col bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden hover:border-[#facf39]/50 hover:shadow-[0_0_60px_-15px_rgba(250,207,57,0.25)] transition-all duration-500 hover:-translate-y-2 shadow-xl"
+              style={{ animationDelay: `${i * 0.1}s` }}
+            >
               <div className="relative h-48 w-full overflow-hidden">
                 <div className="absolute inset-0 bg-[#facf39]/5 mix-blend-overlay z-10"></div>
-                <img src={svc.img} alt={svc.title} className="absolute inset-0 w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700" />
+                <img src={svc.img} alt={svc.title} className="absolute inset-0 w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-70 group-hover:scale-110 transition-all duration-1000" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent z-10"></div>
-                <div className="absolute top-4 right-4 text-5xl font-bold text-white/[0.05] group-hover:text-[#facf39]/10 transition-colors z-20">{svc.id}</div>
+                <div className="absolute top-4 right-4 text-5xl font-bold text-white/[0.05] group-hover:text-[#facf39]/15 transition-colors z-20">{svc.id}</div>
               </div>
               <div className="p-8 pt-4 flex flex-col flex-grow relative z-20">
-                <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#facf39] mb-4 group-hover:scale-110 group-hover:border-[#facf39]/40 group-hover:bg-[#facf39]/10 transition-all duration-300 -mt-10 shadow-xl backdrop-blur-sm">
-                  <iconify-icon icon={svc.icon} width="20"></iconify-icon>
+                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#facf39] mb-4 group-hover:scale-110 group-hover:border-[#facf39]/50 group-hover:bg-[#facf39]/15 transition-all duration-500 -mt-10 shadow-2xl backdrop-blur-md">
+                  <iconify-icon icon={svc.icon} width="24"></iconify-icon>
                 </div>
-                <h3 className="text-xl font-medium text-white mb-3 tracking-tight group-hover:text-[#facf39] transition-colors">{svc.title}</h3>
-                <p className="text-sm text-neutral-300 leading-relaxed group-hover:text-neutral-200 transition-colors">{svc.desc}</p>
+                <h3 className="text-xl font-medium text-white mb-3 tracking-tight group-hover:text-[#facf39] transition-colors duration-300">{svc.title}</h3>
+                <p className="text-sm text-neutral-300 leading-relaxed group-hover:text-neutral-200 transition-colors duration-300">{svc.desc}</p>
               </div>
             </div>
           ))}

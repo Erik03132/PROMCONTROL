@@ -7,8 +7,12 @@ interface Message {
   text: string;
 }
 
-const ChatBot: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface ChatBotProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'bot', text: 'Здравствуйте! Я — инженер-консультант ПРОМ КОНТРОЛЬ. Чем я могу помочь вам в автоматизации вашего производства сегодня?' }
   ]);
