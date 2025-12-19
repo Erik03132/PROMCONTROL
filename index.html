@@ -33,6 +33,20 @@
             from { transform: translateX(-100%) skewX(-15deg); }
             to { transform: translateX(200%) skewX(-15deg); }
         }
+        @keyframes nodePulse {
+            0%, 100% { 
+                border-color: rgba(250, 207, 57, 0.2); 
+                background-color: #161616; 
+                box-shadow: none; 
+                transform: scale(1);
+            }
+            15%, 35% { 
+                border-color: #facf39; 
+                background-color: rgba(250, 207, 57, 0.15); 
+                box-shadow: 0 0 30px rgba(250, 207, 57, 0.3);
+                transform: scale(1.05);
+            }
+        }
         .animate-fade-up {
             animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
@@ -60,6 +74,10 @@
         }
         .card-shine:hover::after {
             animation: shine 1.2s ease-out forwards;
+        }
+
+        .animate-node-pulse {
+            animation: nodePulse 6s infinite;
         }
 
         /* Grid Background */

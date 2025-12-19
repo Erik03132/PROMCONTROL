@@ -58,28 +58,28 @@ const DiagramSection: React.FC = () => {
                     </g>
                   </svg>
                   
-                  {/* Nodes implementation would follow the visual style */}
-                  <div className="absolute left-[20px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg group hover:border-[#facf39] transition-all">
+                  {/* Sequence Animation Nodes */}
+                  <div className="animate-node-pulse absolute left-[20px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '0s' }}>
                      <iconify-icon icon="lucide:activity" className="text-[#facf39] text-2xl" />
                   </div>
-                  <div className="absolute left-[120px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg group hover:border-[#facf39] transition-all">
+                  <div className="animate-node-pulse absolute left-[120px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '1s' }}>
                      <iconify-icon icon="lucide:cpu" className="text-[#facf39] text-2xl" />
                      <span className="text-[10px] text-neutral-300">ПЛК</span>
                   </div>
-                  <div className="absolute left-[220px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md rotate-45 flex items-center justify-center z-10 shadow-lg group hover:border-[#facf39] transition-all">
+                  <div className="animate-node-pulse absolute left-[220px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md rotate-45 flex items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '2s' }}>
                     <div className="-rotate-45 flex flex-col items-center">
                       <iconify-icon icon="lucide:git-branch" className="text-[#facf39] text-xl" />
                     </div>
                   </div>
-                  <div className="absolute left-[330px] top-[60px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg group hover:border-[#facf39] transition-all">
+                  <div className="animate-node-pulse absolute left-[330px] top-[60px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '3s' }}>
                      <iconify-icon icon="lucide:monitor-dot" className="text-[#facf39] text-xl" />
                      <span className="text-[10px] text-neutral-300">SCADA</span>
                   </div>
-                  <div className="absolute left-[330px] top-[260px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg group hover:border-[#facf39] transition-all">
+                  <div className="animate-node-pulse absolute left-[330px] top-[260px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '3s' }}>
                      <iconify-icon icon="lucide:settings" className="text-[#facf39] text-2xl animate-spin" style={{ animationDuration: '8s' }} />
                      <span className="text-[10px] text-neutral-300">Приводы</span>
                   </div>
-                   <div className="absolute left-[430px] top-[260px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg group hover:border-[#facf39] transition-all">
+                   <div className="animate-node-pulse absolute left-[430px] top-[260px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '4s' }}>
                      <iconify-icon icon="lucide:clipboard-list" className="text-[#facf39] text-xl" />
                      <span className="text-[10px] text-neutral-300">Отчеты</span>
                   </div>
