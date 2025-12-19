@@ -14,22 +14,11 @@ interface ChatBotProps {
 
 const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', text: 'Здравствуйте! Я инженерный ассистент ПРОМ КОНТРОЛЬ. Опишите вашу задачу.' }
+    { role: 'bot', text: 'Здравствуйте! Я инженерный ассистент ПРОМ КОНТРОЛЬ. Чем я могу вам помочь?' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Диагностика при монтировании
-  useEffect(() => {
-    if (isOpen) {
-      const hasKey = !!process.env.API_KEY;
-      console.log(`[Diagnostic] API_KEY present in browser: ${hasKey}`);
-      if (!hasKey) {
-        console.warn("[Warning] API_KEY is undefined. If this is Vercel, check Settings -> Environment Variables and REDEPLOY.");
-      }
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,7 +38,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
       const botResponse = await getGeminiResponse(trimmedInput);
       setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'bot', text: "Произошла техническая ошибка. Пожалуйста, повторите запрос." }]);
+      setMessages(prev => [...prev, { role: 'bot', text: "Техническая ошибка. Пожалуйста, попробуйте позже." }]);
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +74,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
         {/* Messages */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-up`}>
+            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] p-4 rounded-3xl text-[13px] leading-relaxed ${
                 m.role === 'user' 
                   ? 'bg-[#facf39] text-black font-bold rounded-tr-none shadow-xl' 
@@ -99,7 +88,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
             <div className="flex justify-start">
               <div className="bg-neutral-900 text-neutral-400 border border-white/5 p-4 rounded-3xl rounded-tl-none text-[12px] flex items-center gap-3">
                 <iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>
-                Обработка...
+                Инженер думает...
               </div>
             </div>
           )}
@@ -113,13 +102,13 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Ваш вопрос..."
+              placeholder="Введите ваше сообщение..."
               className="w-full bg-white/[0.03] border border-white/10 rounded-[1.5rem] py-4 pl-6 pr-14 text-[13px] text-white focus:outline-none focus:border-[#facf39]/50 transition-all placeholder:text-neutral-600"
             />
             <button 
               onClick={handleSendMessage}
               disabled={isLoading || !inputValue.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#facf39] text-black flex items-center justify-center hover:bg-[#ffe066] transition-all disabled:opacity-20 shadow-lg"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#facf39] text-black flex items-center justify-center hover:bg-[#ffe066] transition-all disabled:opacity-20 shadow-lg active:scale-95"
             >
               <iconify-icon icon="solar:send-bold" width="22"></iconify-icon>
             </button>
