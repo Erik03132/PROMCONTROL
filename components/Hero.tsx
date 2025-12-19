@@ -13,11 +13,11 @@ const Hero: React.FC = () => {
         </div>
       </div>
 
-      <h1 className="animate-fade-up delay-200 leading-[0.9] tracking-tighter text-center max-w-6xl mb-10">
-        <span className="block text-white font-black text-5xl md:text-8xl lg:text-9xl mb-4">
+      <h1 className="animate-fade-up delay-200 leading-[1.1] tracking-tight text-center max-w-6xl mb-10">
+        <span className="block text-white font-bold text-3xl sm:text-5xl md:text-6xl lg:text-7xl mb-4 break-words">
           Интеллектуальная автоматизация
         </span>
-        <span className="text-neutral-500 md:text-5xl lg:text-6xl text-3xl font-medium">
+        <span className="text-neutral-500 text-lg sm:text-2xl md:text-4xl lg:text-5xl font-medium">
           для стабильного производства
         </span>
       </h1>

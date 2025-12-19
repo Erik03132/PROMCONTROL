@@ -35,54 +35,67 @@ const DiagramSection: React.FC = () => {
             </div>
           </div>
 
-          <div className="order-1 lg:order-2 relative group">
-            <div className="overflow-hidden aspect-square md:aspect-[4/3] bg-[#0a0a0a] border-white/10 border rounded-3xl relative shadow-2xl">
+          <div className="order-1 lg:order-2 relative">
+            <div className="overflow-hidden aspect-[4/3] bg-[#0a0a0a] border-white/10 border rounded-3xl relative shadow-2xl flex items-center justify-center">
               <div className="absolute inset-0 z-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#facf39 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
-              <div className="absolute top-6 left-6 z-30 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#facf39]/20 bg-[#facf39]/10 backdrop-blur-md shadow-lg shadow-[#facf39]/5">
-                <span className="relative flex h-2 w-2">
+              
+              {/* Status Badge */}
+              <div className="absolute top-4 left-4 z-30 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#facf39]/20 bg-[#facf39]/10 backdrop-blur-md">
+                <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#facf39] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#facf39]"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#facf39]"></span>
                 </span>
-                <span className="text-[10px] font-semibold tracking-wide text-[#facf39] uppercase font-mono">SCADA: ACTIVE</span>
+                <span className="text-[9px] font-bold tracking-widest text-[#facf39] uppercase font-mono">SYSTEM: ACTIVE</span>
               </div>
 
-              <div className="flex z-10 p-4 absolute inset-0 items-center justify-center">
-                <div className="sm:scale-[0.75] md:scale-[0.9] lg:scale-100 transition-transform origin-center select-none w-[530px] h-[400px] max-w-full relative scale-[0.6]">
-                  <svg className="absolute inset-0 w-full h-full z-0 overflow-visible pointer-events-none">
-                    <g stroke="#facf39" strokeWidth="1.5" strokeOpacity="0.2" fill="none">
-                      <path d="M 100 200 L 120 200" />
-                      <path d="M 200 200 L 220 200" />
-                      <path d="M 300 200 L 315 200 L 315 100 L 330 100" />
-                      <path d="M 300 200 L 315 200 L 315 300 L 330 300" />
-                      <path d="M 410 300 L 430 300" />
-                    </g>
-                  </svg>
-                  
-                  {/* Sequence Animation Nodes */}
-                  <div className="animate-node-pulse absolute left-[20px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '0s' }}>
-                     <iconify-icon icon="lucide:activity" className="text-[#facf39] text-2xl" />
+              {/* Responsive Container for Diagram */}
+              <div className="relative w-full max-w-[500px] aspect-[500/360] scale-[0.8] sm:scale-90 md:scale-100 transition-transform">
+                <svg className="absolute inset-0 w-full h-full z-0 overflow-visible pointer-events-none">
+                  <g stroke="#facf39" strokeWidth="1.5" strokeOpacity="0.2" fill="none">
+                    {/* Paths connect center to center or edge to edge */}
+                    <path d="M 90 180 L 105 180" />
+                    <path d="M 185 180 L 200 180" />
+                    <path d="M 280 180 L 295 180 L 295 90 L 310 90" />
+                    <path d="M 280 180 L 295 180 L 295 270 L 310 270" />
+                    <path d="M 390 270 L 410 270" />
+                  </g>
+                </svg>
+                
+                {/* Node 1: Sensor/Activity */}
+                <div className="animate-node-pulse absolute left-[10px] top-[140px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-xl flex flex-col items-center justify-center z-10 shadow-lg" style={{ animationDelay: '0s' }}>
+                   <iconify-icon icon="lucide:activity" className="text-[#facf39] text-2xl" />
+                   <span className="text-[9px] text-neutral-400 mt-1 uppercase font-bold">Сенсор</span>
+                </div>
+                
+                {/* Node 2: PLC */}
+                <div className="animate-node-pulse absolute left-[105px] top-[140px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-xl flex flex-col items-center justify-center z-10 shadow-lg" style={{ animationDelay: '1s' }}>
+                   <iconify-icon icon="lucide:cpu" className="text-[#facf39] text-2xl" />
+                   <span className="text-[9px] text-neutral-400 mt-1 uppercase font-bold">ПЛК</span>
+                </div>
+                
+                {/* Node 3: Logic Split */}
+                <div className="animate-node-pulse absolute left-[200px] top-[140px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-xl rotate-45 flex items-center justify-center z-10 shadow-lg" style={{ animationDelay: '2s' }}>
+                  <div className="-rotate-45 flex flex-col items-center">
+                    <iconify-icon icon="lucide:git-branch" className="text-[#facf39] text-xl" />
                   </div>
-                  <div className="animate-node-pulse absolute left-[120px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '1s' }}>
-                     <iconify-icon icon="lucide:cpu" className="text-[#facf39] text-2xl" />
-                     <span className="text-[10px] text-neutral-300">ПЛК</span>
-                  </div>
-                  <div className="animate-node-pulse absolute left-[220px] top-[160px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md rotate-45 flex items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '2s' }}>
-                    <div className="-rotate-45 flex flex-col items-center">
-                      <iconify-icon icon="lucide:git-branch" className="text-[#facf39] text-xl" />
-                    </div>
-                  </div>
-                  <div className="animate-node-pulse absolute left-[330px] top-[60px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '3s' }}>
-                     <iconify-icon icon="lucide:monitor-dot" className="text-[#facf39] text-xl" />
-                     <span className="text-[10px] text-neutral-300">SCADA</span>
-                  </div>
-                  <div className="animate-node-pulse absolute left-[330px] top-[260px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '3s' }}>
-                     <iconify-icon icon="lucide:settings" className="text-[#facf39] text-2xl animate-spin" style={{ animationDuration: '8s' }} />
-                     <span className="text-[10px] text-neutral-300">Приводы</span>
-                  </div>
-                   <div className="animate-node-pulse absolute left-[430px] top-[260px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-md flex flex-col items-center justify-center z-10 shadow-lg transition-all" style={{ animationDelay: '4s' }}>
-                     <iconify-icon icon="lucide:clipboard-list" className="text-[#facf39] text-xl" />
-                     <span className="text-[10px] text-neutral-300">Отчеты</span>
-                  </div>
+                </div>
+                
+                {/* Node 4: SCADA/HMI */}
+                <div className="animate-node-pulse absolute left-[310px] top-[50px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-xl flex flex-col items-center justify-center z-10 shadow-lg" style={{ animationDelay: '3s' }}>
+                   <iconify-icon icon="lucide:monitor-dot" className="text-[#facf39] text-xl" />
+                   <span className="text-[9px] text-neutral-400 mt-1 uppercase font-bold">SCADA</span>
+                </div>
+                
+                {/* Node 5: Actuators */}
+                <div className="animate-node-pulse absolute left-[310px] top-[230px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-xl flex flex-col items-center justify-center z-10 shadow-lg" style={{ animationDelay: '3.5s' }}>
+                   <iconify-icon icon="lucide:settings" className="text-[#facf39] text-2xl animate-spin" style={{ animationDuration: '6s' }} />
+                   <span className="text-[9px] text-neutral-400 mt-1 uppercase font-bold">Привод</span>
+                </div>
+                
+                {/* Node 6: Reporting */}
+                <div className="animate-node-pulse absolute left-[410px] top-[230px] w-20 h-20 bg-[#161616] border border-[#facf39]/30 rounded-xl flex flex-col items-center justify-center z-10 shadow-lg" style={{ animationDelay: '4.5s' }}>
+                   <iconify-icon icon="lucide:clipboard-list" className="text-[#facf39] text-xl" />
+                   <span className="text-[9px] text-neutral-400 mt-1 uppercase font-bold">Отчет</span>
                 </div>
               </div>
             </div>
