@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI } from '@google/genai';
-
+import { GoogleGenerativeAI } from '@google/generative-ai';
 const SYSTEM_INSTRUCTION = `
 Ты — интеллектуальный ассистент компании "ПРОМ КОНТРОЛЬ".
 Отвечай кратко, профессионально, без использования Markdown (никаких звездочек и решеток).
@@ -27,8 +26,7 @@ export default async function handler(
       return res.status(500).json({ error: 'API_KEY not configured' });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
+    const ai = new GoogleGenerativeAI( apiKey );    const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: message,
       config: {
