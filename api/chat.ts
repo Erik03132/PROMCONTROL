@@ -1,0 +1,54 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { GoogleGenAI } from '@google/genai';
+
+const SYSTEM_INSTRUCTION = `
+Ты — интеллектуальный ассистент компании "ПРОМ КОНТРОЛЬ".
+Отвечай кратко, профессионально, без использования Markdown (никаких звездочек и решеток).
+Твои темы: АСУ ТП, инжиниринг, ТЗ по ГОСТ.
+`;
+
+export default async function handler(
+  req: VercelRequest,
+  res: VercelResponse
+) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { message } = req.body;
+
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'API_KEY not configured' });
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: message,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        temperature: 0.7,
+      },
+    });
+
+    const text = response.text;
+
+    if (!text) {
+      return res.status(500).json({ error: 'No response from AI' });
+    }
+
+    return res.status(200).json({ response: text });
+  } catch (error: any) {
+    console.error('Gemini API Error:', error);
+    return res.status(500).json({ 
+      error: 'Failed to get response from AI',
+      details: error.message 
+    });
+  }
+}
