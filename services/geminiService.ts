@@ -10,8 +10,7 @@ const SYSTEM_INSTRUCTION = `
 export async function getGeminiResponse(userPrompt: string) {
   try {
     // Инициализация строго по гайдлайнам с использованием process.env.API_KEY
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
+    const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_API_KEY });    
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: userPrompt,
