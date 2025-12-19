@@ -14,7 +14,7 @@ interface ChatBotProps {
 
 const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', text: 'Здравствуйте! Я — инженер-консультант ПРОМ КОНТРОЛЬ. Чем я могу помочь вам в автоматизации вашего производства сегодня?' }
+    { role: 'bot', text: 'Здравствуйте! Я инженерный ассистент ПРОМ КОНТРОЛЬ. Опишите вашу задачу по автоматизации или инжинирингу.' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -27,18 +27,19 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
   }, [messages, isLoading, isOpen]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    const trimmedInput = inputValue.trim();
+    if (!trimmedInput || isLoading) return;
 
-    const userMsg = inputValue.trim();
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setMessages(prev => [...prev, { role: 'user', text: trimmedInput }]);
     setInputValue('');
     setIsLoading(true);
 
     try {
-      const botResponse = await getGeminiResponse(userMsg);
+      const botResponse = await getGeminiResponse(trimmedInput);
       setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'bot', text: "Произошла непредвиденная ошибка. Попробуйте обновить страницу." }]);
+      console.error("Chat Interaction Error:", err);
+      setMessages(prev => [...prev, { role: 'bot', text: "Не удалось получить ответ. Пожалуйста, свяжитесь с нами через форму на сайте или по email." }]);
     } finally {
       setIsLoading(false);
     }
@@ -48,36 +49,36 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
 
   return (
     <div className="fixed bottom-6 right-6 z-[100] font-manrope">
-      <div className="w-[350px] sm:w-[400px] h-[550px] bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-fade-up">
+      <div className="w-[350px] sm:w-[420px] h-[600px] bg-[#0a0a0a] border border-white/10 rounded-[2.5rem] shadow-[0_25px_60px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-fade-up">
         {/* Header */}
-        <div className="p-5 bg-white/5 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#facf39] flex items-center justify-center shadow-[0_0_20px_-5px_rgba(250,207,57,0.5)]">
-              <iconify-icon icon="lucide:cpu" className="text-black text-xl"></iconify-icon>
+        <div className="p-7 bg-gradient-to-b from-white/[0.05] to-transparent border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#facf39] flex items-center justify-center shadow-[0_0_30px_-5px_rgba(250,207,57,0.5)]">
+              <iconify-icon icon="lucide:cpu" className="text-black text-2xl"></iconify-icon>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white tracking-tight">Инженерный ассистент</h4>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                <span className="text-[10px] text-neutral-400 font-medium">Система онлайн</span>
+              <h4 className="text-sm font-extrabold text-white tracking-tight uppercase">AI Assistant</h4>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span className="text-[10px] text-neutral-400 font-bold tracking-widest uppercase">Online</span>
               </div>
             </div>
           </div>
           <button 
             onClick={() => setIsOpen(false)} 
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-neutral-400 hover:text-white transition-all"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/5 text-neutral-500 hover:text-white transition-all"
           >
-            <iconify-icon icon="lucide:x" width="20"></iconify-icon>
+            <iconify-icon icon="lucide:x" width="24"></iconify-icon>
           </button>
         </div>
 
         {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] bg-fixed">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-up`}>
-              <div className={`max-w-[85%] p-3.5 rounded-2xl text-[13px] leading-relaxed shadow-lg ${
+              <div className={`max-w-[85%] p-4 rounded-3xl text-[13px] leading-relaxed ${
                 m.role === 'user' 
-                  ? 'bg-[#facf39] text-black font-semibold rounded-tr-none' 
+                  ? 'bg-[#facf39] text-black font-bold rounded-tr-none shadow-xl' 
                   : 'bg-neutral-900 text-neutral-200 border border-white/5 rounded-tl-none'
               }`}>
                 {m.text}
@@ -85,37 +86,37 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
             </div>
           ))}
           {isLoading && (
-            <div className="flex justify-start animate-pulse">
-              <div className="bg-neutral-900 text-neutral-400 border border-white/5 p-3.5 rounded-2xl rounded-tl-none text-[12px] flex items-center gap-2">
-                <iconify-icon icon="line-md:loading-twotone-loop" width="16"></iconify-icon>
-                Инженер анализирует данные...
+            <div className="flex justify-start">
+              <div className="bg-neutral-900 text-neutral-400 border border-white/5 p-4 rounded-3xl rounded-tl-none text-[12px] flex items-center gap-3">
+                <iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>
+                Обработка запроса...
               </div>
             </div>
           )}
         </div>
 
         {/* Input */}
-        <div className="p-5 border-t border-white/10 bg-black/60 backdrop-blur-xl">
+        <div className="p-6 border-t border-white/10 bg-black/40 backdrop-blur-xl">
           <div className="relative group">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Опишите задачу или вопрос..."
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-5 pr-14 text-[13px] text-white focus:outline-none focus:border-[#facf39]/50 focus:ring-1 focus:ring-[#facf39]/20 transition-all placeholder:text-neutral-600"
+              placeholder="Ваш вопрос..."
+              className="w-full bg-white/[0.03] border border-white/10 rounded-[1.5rem] py-4 pl-6 pr-14 text-[13px] text-white focus:outline-none focus:border-[#facf39]/50 transition-all placeholder:text-neutral-600"
             />
             <button 
               onClick={handleSendMessage}
               disabled={isLoading || !inputValue.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-[#facf39] text-black flex items-center justify-center hover:bg-[#ffe066] transition-all disabled:opacity-30 disabled:grayscale shadow-lg shadow-[#facf39]/10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#facf39] text-black flex items-center justify-center hover:bg-[#ffe066] transition-all disabled:opacity-20 shadow-lg active:scale-95"
             >
-              <iconify-icon icon="solar:send-bold" width="20"></iconify-icon>
+              <iconify-icon icon="solar:send-bold" width="22"></iconify-icon>
             </button>
           </div>
-          <p className="text-[9px] text-neutral-500 text-center mt-3 uppercase tracking-widest font-medium opacity-50">
-            Powered by Gemini 3 Flash
-          </p>
+          <div className="mt-4 flex justify-center">
+            <p className="text-[8px] text-neutral-700 font-bold uppercase tracking-[0.2em]">Engineering intelligence system</p>
+          </div>
         </div>
       </div>
     </div>
