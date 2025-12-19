@@ -36,7 +36,7 @@ const DiagramSection: React.FC = () => {
           </div>
 
           <div className="order-1 lg:order-2 relative">
-            <div className="overflow-hidden aspect-[4/3] bg-[#0a0a0a] border-white/10 border rounded-3xl relative shadow-2xl flex items-center justify-center">
+            <div className="overflow-hidden min-h-[320px] sm:aspect-[4/3] bg-[#0a0a0a] border-white/10 border rounded-3xl relative shadow-2xl flex items-center justify-center">
               <div className="absolute inset-0 z-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#facf39 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
               
               {/* Status Badge */}
@@ -48,8 +48,8 @@ const DiagramSection: React.FC = () => {
                 <span className="text-[9px] font-bold tracking-widest text-[#facf39] uppercase font-mono">SYSTEM: ACTIVE</span>
               </div>
 
-              {/* Responsive Container for Diagram */}
-              <div className="relative w-full max-w-[500px] aspect-[500/360] scale-[0.8] sm:scale-90 md:scale-100 transition-transform">
+              {/* Responsive Container for Diagram - Adjusted Scaling for Mobile */}
+              <div className="relative w-[500px] h-[360px] scale-[0.52] min-[380px]:scale-[0.65] min-[480px]:scale-[0.8] sm:scale-[0.9] md:scale-100 transition-all duration-500 origin-center flex-shrink-0">
                 <svg className="absolute inset-0 w-full h-full z-0 overflow-visible pointer-events-none">
                   <g stroke="#facf39" strokeWidth="1.5" strokeOpacity="0.2" fill="none">
                     {/* Paths connect center to center or edge to edge */}
