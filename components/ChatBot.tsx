@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+39
+  import React, { useState, useRef, useEffect } from 'react';
 
 interface Message {
   role: 'user' | 'bot';
@@ -39,8 +40,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
         body: JSON.stringify({history: [...messages.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
             parts: [{ text: msg.text }]
-            })), { role: 'user', parts: [{ text: trimmedInput }]}
-]        });
+       })), { role: 'user', parts: [{ text: trimmedInput }] }]})
+
       const data = await apiResponse.json();
       const botResponse = data.response || 'Произошла ошибка при получении ответа.';
       setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
