@@ -21,9 +21,10 @@ export default async function handler(req: any, res: any) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-  // 🧠 GROUNDING: Сначала база знаний (если есть), затем Google Search    const tools: any[] = [];
+    const tools: any[] = [];
     
-  // Приоритет 1: Vertex AI Data Store - поиск в базе знаний    if (process.env.VERTEX_DATASTORE_ID) {
+    // Приоритет 1: Vertex AI Data Store - поиск в базе знаний
+    if (process.env.VERTEX_DATASTORE_ID) {
       tools.push({
         retrieval: {
           vertexAiSearch: {
@@ -32,20 +33,20 @@ export default async function handler(req: any, res: any) {
         }
       });
     } else {
-    
-  // Приоритет 2: Google Search - если в базе не нашлось    tools.push({
-      googleSearchRetrieval: {
-        dynamicRetrievalConfig: {
-          mode: 'MODE_DYNAMIC',
-          dynamicThreshold: 0.3 // Автоматически решает, нужен ли поиск
+      // Приоритет 2: Google Search - если в базе не нашлось
+      tools.push({
+        googleSearchRetrieval: {
+          dynamicRetrievalConfig: {
+            mode: 'MODE_DYNAMIC',
+            dynamicThreshold: 0.3 // Автоматически решает, нужен ли поиск
+          }
         }
-      }
-    });
+      });
     }
 
     const result = await ai.models.generateContent({
       model: 'gemini-2.0-flash-exp',
-      contents: history || []],
+      contents: history || [],
       tools: tools.length > 0 ? tools : undefined,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -60,7 +61,7 @@ export default async function handler(req: any, res: any) {
     }
 
     // Возвращаем ответ с источниками (если есть)
-    return res.status(200).json({ 
+    return res.status(200).json({
       response: text,
       // Метаданные о grounding для будущего отображения источников
       groundingMetadata: result.groundingMetadata || null
