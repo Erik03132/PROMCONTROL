@@ -12,12 +12,8 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const { message } = req.body;
-
-    if (!message || typeof message !== 'string') {
-      return res.status(400).json({ error: 'Message is required' });
-    }
-
+    const { history } = req.body;
+    
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'API_KEY not configured' });
@@ -48,12 +44,7 @@ export default async function handler(req: any, res: any) {
 
     const result = await ai.models.generateContent({
       model: 'gemini-2.0-flash-exp',
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: message }]
-        }
-      ],
+      contents: history || []],
       tools: tools.length > 0 ? tools : undefined,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
