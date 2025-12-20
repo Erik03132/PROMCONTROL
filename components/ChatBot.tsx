@@ -37,8 +37,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({history: [...messages.map(msg => ({
-          role: msg.роль === 'пользователь' ? 'user' : 'model',
-          parts: [{ text: msg.текст }]
+            role: msg.role === 'user' ? 'user' : 'model',          parts: [{ text: msg.text }]
         })), { role: 'user', parts: [{ text: trimmedInput }] }]
       });
       const data = await apiResponse.json();
