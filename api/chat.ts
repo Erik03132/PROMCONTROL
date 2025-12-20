@@ -31,7 +31,7 @@ export default async function handler(req: any, res: any) {
           }
         }
       });
-    }
+    } else {
     
   // Приоритет 2: Google Search - если в базе не нашлось    tools.push({
       googleSearchRetrieval: {
@@ -41,6 +41,7 @@ export default async function handler(req: any, res: any) {
         }
       }
     });
+    }
 
     const result = await ai.models.generateContent({
       model: 'gemini-2.0-flash-exp',
