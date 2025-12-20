@@ -45,7 +45,7 @@ export default async function handler(req: any, res: any) {
     }
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+     model: 'gemini-3-flash',
       contents: history || [],
       tools: tools.length > 0 ? tools : undefined,
       config: {
