@@ -29,7 +29,7 @@ export default async function handler(req: any, res: any) {
         retrieval: {
           vertexAiSearch: {
             datastore: `projects/${process.env.GCP_PROJECT_ID}/locations/global/collections/default_collection/dataStores/${process.env.VERTEX_DATASTORE_ID}`
-          }
+           }
         }
       });
     } else {
