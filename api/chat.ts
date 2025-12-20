@@ -25,11 +25,9 @@ export default async function handler(req: any, res: any) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // 🎯 GROUNDING: Сначала база знаний (когда добавишь), потом Google Search
-    const tools: any[] = [];
+  // 🧠 GROUNDING: Сначала база знаний (если есть), затем Google Search    const tools: any[] = [];
     
-    // Если указан Vertex AI datastore - ищем в базе знаний
-    if (process.env.VERTEX_DATASTORE_ID) {
+  // Приоритет 1: Vertex AI Data Store - поиск в базе знаний    if (process.env.VERTEX_DATASTORE_ID) {
       tools.push({
         retrieval: {
           vertexAiSearch: {
@@ -39,8 +37,7 @@ export default async function handler(req: any, res: any) {
       });
     }
     
-    // Google Search как fallback
-    tools.push({
+  // Приоритет 2: Google Search - если в базе не нашлось    tools.push({
       googleSearchRetrieval: {
         dynamicRetrievalConfig: {
           mode: 'MODE_DYNAMIC',
