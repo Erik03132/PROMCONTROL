@@ -36,7 +36,10 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
       const apiResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmedInput }),
+        body: JSON.stringify({history: [...messages.map(msg => ({
+          role: msg.role,
+          parts: [{ text: msg.text }]
+        })), { role: 'user', parts: [{ text: trimmedInput }] }]
       });
       const data = await apiResponse.json();
       const botResponse = data.response || 'Произошла ошибка при получении ответа.';
