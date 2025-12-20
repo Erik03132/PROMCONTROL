@@ -45,9 +45,7 @@ export default async function handler(req: any, res: any) {
     }
 
     const result = await ai.models.generateContent({
-     model: 'gemini-3-flash',
-      contents: history || [],
-      tools: tools.length > 0 ? tools : undefined,
+    model: 'gemini-3.0-flash',      tools: tools.length > 0 ? tools : undefined,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         temperature: 0.7,
