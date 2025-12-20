@@ -38,8 +38,9 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({history: [...messages.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.text }]        })), { role: 'user', parts: [{ text: trimmedInput }] }]
-      });
+            parts: [{ text: msg.text }]
+            })), { role: 'user', parts: [{ text: trimmedInput }]]
+          });
       const data = await apiResponse.json();
       const botResponse = data.response || 'Произошла ошибка при получении ответа.';
       setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
