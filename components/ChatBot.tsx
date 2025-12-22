@@ -1,10 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-интерфейс Сообщение {
-  роль: 'пользователь' | 'бот';
-  текст: строка;
-}
-
 interface ChatBotProps {
   isOpen: логическое значение;
   setIsOpen: (open: boolean) => void;
