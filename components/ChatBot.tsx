@@ -1,14 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-interface ChatBotProps {
-  isOpen: логическое значение;
-  setIsOpen: (open: boolean) => void;
+interface Message {
+  role: 'user' | 'bot';
+  text: string;
 }
+
+interface ChatBotProps {
+
 
 const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
   const [messages, setMessages] = useState<Message[]>([
-    { роль: 'бот', текст: 'Здравствуйте! Я инженерный ассистент ПРОМ КОНТРОЛЬ. Чем я могу вам помочь? }
-  ]);
+{ role: 'bot', text: 'Здравствуйте! Я инженерный ассистент ПРОМ КОНТРОЛЬ. Чем я могу вам помочь?' }
+
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -27,18 +30,10 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
     setInputValue('');
     setIsLoading(true);
 
-    пытаться {
-      const apiResponse = await fetch('/api/chat', {
-        метод: 'POST',
-        заголовки: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmedInput }),
-      });
-      const data = await apiResponse.json();
-      const botResponse = data.response || 'Произошла ошибка при получении ответа.';
-      setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
-    } catch (err) {
-      setMessages(prev => [...prev, { role: 'bot', text: 'Техническая ошибка. Пожалуйста, посмотрите позже.' }]);
-    } окончательно {
+    try {
+  // ... код ...
+} finally {
+
       setIsLoading(false);
     }
   };
