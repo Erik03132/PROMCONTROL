@@ -2,6 +2,7 @@
 // Vercel Serverless Function - автоматически деплоится как /api/form
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { Resend } from 'resend';
 
 interface FormData {
   firstName: string;
@@ -54,73 +55,27 @@ export default async function handler(
     };
 
     // ============================================
-    // ВАРИАНТ 1: Отправка на email через Resend
+    // Отправка на email через Resend (АКТИВНО)
     // ============================================
-    // Раскомментируй и установи: npm install resend
-    // Добавь RESEND_API_KEY в Vercel Environment Variables
-    /*
-    const { Resend } = await import('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
     
     await resend.emails.send({
-      from: 'onboarding@resend.dev', // Замени на свой домен
-      to: 'info@prom-control.ru',
+      from: 'onboarding@resend.dev',
+      to: 'erik03132@gmail.com',
       subject: `Новая заявка от ${firstName} ${lastName}`,
       html: `
-        <h2>Новая заявка с сайта</h2>
+        <h2>Новая заявка с сайта PROMCONTROL</h2>
         <p><strong>Имя:</strong> ${firstName} ${lastName}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Сообщение:</strong></p>
         <p>${message}</p>
+        <hr>
         <p><em>Дата: ${formData.timestamp}</em></p>
       `
     });
-    */
 
-    // ============================================
-    // ВАРИАНТ 2: Сохранение в Firebase Firestore
-    // ============================================
-    // Установи: npm install firebase-admin
-    // Добавь FIREBASE_ADMIN_SDK (JSON) в Vercel env
-    /*
-    const admin = await import('firebase-admin');
-    
-    if (!admin.apps.length) {
-      const serviceAccount = JSON.parse(
-        process.env.FIREBASE_ADMIN_SDK || '{}'
-      );
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
-    }
-
-    const db = admin.firestore();
-    await db.collection('leads').add(formData);
-    */
-
-    // ============================================
-    // ВАРИАНТ 3: Webhook в Telegram Bot
-    // ============================================
-    // Добавь TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID в env
-    /*
-    const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
-    
-    await fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: `🔔 Новая заявка\n\n👤 ${firstName} ${lastName}\n📧 ${email}\n\n💬 ${message}`,
-        parse_mode: 'HTML'
-      })
-    });
-    */
-
-    // ============================================
-    // ВАРИАНТ 4: Простое логирование (для теста)
-    // ============================================
-    console.log('📩 Новая заявка:', formData);
+    // Логирование для отладки
+    console.log('📩 Новая заявка отправлена на email:', formData);
 
     return res.status(200).json({ 
       success: true,
@@ -130,7 +85,7 @@ export default async function handler(
   } catch (error: any) {
     console.error('❌ Ошибка обработки формы:', error);
     return res.status(500).json({ 
-      error: 'Ошибка сервера. Попробуйте позже или свяжитесь напрямую: info@prom-control.ru',
+      error: 'Ошибка сервера. Попробуйте позже или свяжитесь напрямую: erik03132@gmail.com',
       details: error.message 
     });
   }
