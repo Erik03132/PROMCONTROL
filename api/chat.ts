@@ -1,3 +1,4 @@
+// api/chat.ts
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
@@ -12,7 +13,7 @@ export default async function handler(req: Request): Promise<Response> {
 
   const tools = [
     {
-      googleSearch: {}, // новый инструмент для Gemini 2.x
+      googleSearch: {}, // новый search‑tool для Gemini 2.x
     },
   ];
 
@@ -26,8 +27,11 @@ export default async function handler(req: Request): Promise<Response> {
     tools,
   });
 
-  return new Response(JSON.stringify({ response: result.response.text() }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return new Response(
+    JSON.stringify({ response: result.response.text() }),
+    {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
 }
