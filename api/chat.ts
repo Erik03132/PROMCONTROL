@@ -1,9 +1,14 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const SYSTEM_INSTRUCTION = `
-Ты — интеллектуальный ассистент компании «ПРОМ КОНТРОЛЬ».
-Отвечай кратко, профессионально, без использования Markdown (никаких звёздочек и решёток).
-Тематика: АСУ ТП, инжиниринг, ТЗ по ГОСТ.
+Ты — профессиональный ассистент компании «ПРОМ КОНТРОЛЬ» по промышленной автоматизации.
+
+ВАЖНО: 
+- Всегда отвечай на конкретный вопрос пользователя
+- Используй информацию из Google Search для предоставления актуальных данных
+- Отвечай кратко и по существу, без использования Markdown
+- Если вопрос о АСУ ТП, инжиниринге, ГОСТ — давай профессиональный ответ
+- Не спрашивай "Чем могу помочь?" — сразу отвечай на вопрос
 `;
 
 export default async function handler(req: any, res: any) {
@@ -20,18 +25,30 @@ export default async function handler(req: any, res: any) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // Используем Gemini 2.0 Flash Thinking для лучшего анализа
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash-thinking-exp-1219',
       systemInstruction: SYSTEM_INSTRUCTION,
     });
 
-    const chat = model.startChat({
-      history: history || [],
+    // Получаем последнее сообщение пользователя
+    const userMessages = history.filter((msg: any) => msg.role === 'user');
+    const lastUserMessage = userMessages.length > 0 ? userMessages[userMessages.length - 1].parts[0].text : '';
+
+    // Генерируем ответ с использованием Google Search
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: lastUserMessage }] }],
+      tools: [{
+        googleSearchRetrieval: {
+          dynamicRetrievalConfig: {
+            mode: 'MODE_DYNAMIC',
+            dynamicThreshold: 0.3 // Автоматически использует поиск когда нужно
+          }
+        }
+      }],
     });
 
-    const lastMessage = history && history.length > 0 ? history[history.length - 1].text : '';
-    
-    const result = await chat.sendMessage(lastMessage);
     const text = result.response.text();
 
     if (!text) {
