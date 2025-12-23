@@ -1,3 +1,5 @@
+// api/chat.ts
+
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const SYSTEM_INSTRUCTION = `
@@ -25,20 +27,16 @@ export default async function handler(req: any, res: any) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    
+
     // Используем Gemini 2.0 Flash Thinking для лучшего анализа
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash-thinking-exp-1219',
       systemInstruction: SYSTEM_INSTRUCTION,
     });
 
-    // Получаем последнее сообщение пользователя
-    const userMessages = history.filter((msg: any) => msg.role === 'user');
-    const lastUserMessage = userMessages.length > 0 ? userMessages[userMessages.length - 1].parts[0].text : '';
-
-    // Генерируем ответ с использованием Google Search
+    // Передаём всю историю сообщений
     const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: lastUserMessage }] }],
+      contents: history,
       tools: [{
         googleSearchRetrieval: {
           dynamicRetrievalConfig: {
