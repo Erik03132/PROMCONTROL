@@ -1,9 +1,9 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '@google/generativeai';
 
 const SYSTEM_INSTRUCTION = `
 Ты — интеллектуальный ассистент компании «ПРОМ КОНТРОЛЬ».
 Отвечай кратко, профессионально, без использования Markdown (никаких звёздочек и решёток).
-Тематика: АСУ ТП, инжиниринг, ТЭ по ГОСТ.
+Тематика: АСУ ТП, инжиниринг, ТЗ по ГОСТ.
 `;
 
 export default async function handler(req: any, res: any) {
@@ -13,7 +13,7 @@ export default async function handler(req: any, res: any) {
 
   try {
     const { history } = req.body;
-    
+
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'API_KEY not configured' });
@@ -22,30 +22,20 @@ export default async function handler(req: any, res: any) {
     const ai = new GoogleGenAI({ apiKey });
 
     const tools: any[] = [];
-    
-    // Приоритет 1: Vertex AI Data Store - поиск в базе знаний
-    if (process.env.VERTEX_DATASTORE_ID) {
-      tools.push({
-        retrieval: {
-          vertexAiSearch: {
-            datastore: `projects/${process.env.GCP_PROJECT_ID}/locations/global/collections/default_collection/dataStores/${process.env.VERTEX_DATASTORE_ID}`
-           }
+
+    // Используем только Google Search
+    tools.push({
+      googleSearchRetrieval: {
+        dynamicRetrievalConfig: {
+          mode: 'MODE_DYNAMIC',
+          dynamicThreshold: 0.3 // Автоматически решает, нужен ли поиск
         }
-      });
-    } else {
-      // Приоритет 2: Google Search - если в базе не нашлось
-      tools.push({
-        googleSearchRetrieval: {
-          dynamicRetrievalConfig: {
-            mode: 'MODE_DYNAMIC',
-            dynamicThreshold: 0.3 // Автоматически решает, нужен ли поиск
-          }
-        }
-      });
-    }
+      }
+    });
 
     const result = await ai.models.generateContent({
-    model: 'gemini-3.0-flash',      tools: tools.length > 0 ? tools : undefined,
+      model: 'gemini-2.0-flash-exp',
+      tools: tools.length > 0 ? tools : undefined,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         temperature: 0.7,
