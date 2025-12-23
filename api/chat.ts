@@ -1,67 +1,40 @@
 // api/chat.ts
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, DynamicRetrievalMode } from '@google/generative-ai';
 
-const SYSTEM_INSTRUCTION = `
-Ты — профессиональный ассистент компании «ПРОМ КОНТРОЛЬ» по промышленной автоматизации.
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
-ВАЖНО: 
-- Всегда отвечай на конкретный вопрос пользователя
-- Используй информацию из Google Search для предоставления актуальных данных
-- Отвечай кратко и по существу, без использования Markdown
-- Если вопрос о АСУ ТП, инжиниринге, ГОСТ — давай профессиональный ответ
-- Не спрашивай "Чем могу помочь?" — сразу отвечай на вопрос
-`;
-
-export default async function handler(req: any, res: any) {
+export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response('Method Not Allowed', { status: 405 });
   }
 
-  try {
-    const { history } = req.body;
+  const { userPrompt } = await req.json();
 
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'API_KEY not configured' });
-    }
+  const tools = [
+    {
+      googleSearchRetrieval: {
+        dynamicRetrievalConfig: {
+          mode: DynamicRetrievalMode.DYNAMIC, // Важно: используем enum, а не строку!
+          dynamicThreshold: 0.5,
+        },
+      },
+    },
+  ];
 
-    const genAI = new GoogleGenerativeAI(apiKey);
+  const result = await model.generateContent({
+    contents: [
+      {
+        role: 'user',
+        parts: [{ text: userPrompt }],
+      },
+    ],
+    tools,
+  });
 
-    // Используем Gemini 2.0 Flash Thinking для лучшего анализа
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-thinking-exp-1219',
-      systemInstruction: SYSTEM_INSTRUCTION,
-    });
-
-    // Передаём всю историю сообщений
-    const result = await model.generateContent({
-      contents: history,
-      tools: [{
-        googleSearchRetrieval: {
-          dynamicRetrievalConfig: {
-            mode: 'MODE_DYNAMIC',
-            dynamicThreshold: 0.3 // Автоматически использует поиск когда нужно
-          }
-        }
-      }],
-    });
-
-    const text = result.response.text();
-
-    if (!text) {
-      return res.status(500).json({ error: 'No response from AI' });
-    }
-
-    return res.status(200).json({
-      response: text,
-    });
-
-  } catch (error: any) {
-    console.error('Ошибка API Gemini:', error);
-    return res.status(500).json({
-      error: 'Не удалось получить ответ от ИИ',
-      details: error.message
-    });
-  }
+  return new Response(JSON.stringify({ response: result.response.text() }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
