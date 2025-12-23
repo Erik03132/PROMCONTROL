@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/generativeai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const SYSTEM_INSTRUCTION = `
 Ты — интеллектуальный ассистент компании «ПРОМ КОНТРОЛЬ».
@@ -19,40 +19,27 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ error: 'API_KEY not configured' });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
-
-    const tools: any[] = [];
-
-    // Используем только Google Search
-    tools.push({
-      googleSearchRetrieval: {
-        dynamicRetrievalConfig: {
-          mode: 'MODE_DYNAMIC',
-          dynamicThreshold: 0.3 // Автоматически решает, нужен ли поиск
-        }
-      }
-    });
-
-    const result = await ai.models.generateContent({
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash-exp',
-      tools: tools.length > 0 ? tools : undefined,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
-      },
+      systemInstruction: SYSTEM_INSTRUCTION,
     });
 
-    const text = result.text;
+    const chat = model.startChat({
+      history: history || [],
+    });
+
+    const lastMessage = history && history.length > 0 ? history[history.length - 1].text : '';
+    
+    const result = await chat.sendMessage(lastMessage);
+    const text = result.response.text();
 
     if (!text) {
       return res.status(500).json({ error: 'No response from AI' });
     }
 
-    // Возвращаем ответ с источниками (если есть)
     return res.status(200).json({
       response: text,
-      // Метаданные о grounding для будущего отображения источников
-      groundingMetadata: result.groundingMetadata || null
     });
 
   } catch (error: any) {
