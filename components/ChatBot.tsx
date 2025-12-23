@@ -1,145 +1,199 @@
-import React, { useState, useRef, useEffect } from 'react';
+// components/ChatBot.tsx
 
-interface Message {
-  role: 'user' | 'bot';
-  text: string;
-}
+import React, { useState, useEffect, useRef } from "react";
 
-interface ChatBotProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-}
+type Message = {
+  role: "user" | "model";
+  parts: { text: string }[];
+};
 
-const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', text: 'Здравствуйте! Я инженерный ассистент ПРОМ КОНТРОЛЬ. Чем я могу вам помочь?' }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+const SESSION_KEY = "chat_history";
+
+const ChatBot: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isLoading, isOpen]);
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(messages));
+    // Scroll to bottom on new message
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  const handleSendMessage = async () => {
-    const trimmedInput = inputValue.trim();
-    if (!trimmedInput || isLoading) return;
+  const sendMessage = async () => {
+    const trimmed = input.trim();
+    if (!trimmed || loading) return;
 
-    setMessages(prev => [...prev, { role: 'user', text: trimmedInput }]);
-    setInputValue('');
-    setIsLoading(true);
+    const userMsg: Message = { role: "user", parts: [{ text: trimmed }] };
+    const newHistory = [...messages, userMsg];
+    setMessages(newHistory);
+    setInput("");
+    setLoading(true);
 
     try {
-      const apiResponse = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmedInput }),
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ history: newHistory }),
       });
-      const data = await apiResponse.json();
-      const botResponse = data.response || 'Произошла ошибка при получении ответа.';
-      setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
-    } catch (err) {
-      setMessages(prev => [...prev, { role: 'bot', text: 'Техническая ошибка. Пожалуйста, посмотрите позже.' }]);
-    } finally {
-      setIsLoading(false);
+      const data = await res.json();
+      if (data.response) {
+        setMessages([
+          ...newHistory,
+          { role: "model", parts: [{ text: data.response }] },
+        ]);
+      } else {
+        setMessages([
+          ...newHistory,
+          {
+            role: "model",
+            parts: [
+              {
+                text:
+                  data.error ||
+                  "Ошибка: не удалось получить ответ от инженера.",
+              },
+            ],
+          },
+        ]);
+      }
+    } catch (e) {
+      setMessages([
+        ...newHistory,
+        {
+          role: "model",
+          parts: [{ text: "Ошибка соединения с сервером." }],
+        },
+      ]);
     }
+    setLoading(false);
   };
 
-  if (!isOpen) return null;
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") sendMessage();
+  };
+
+  const clearChat = () => {
+    setMessages([]);
+    sessionStorage.removeItem(SESSION_KEY);
+  };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] font-manrope">
-      <div className="w-[350px] sm:w-[420px] h-[600px] bg-[#0a0a0a] border border-white/10 rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(250,207,57,0.2)] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="p-7 bg-gradient-to-b from-white/[0.05] to-transparent border-b border-white/10 flex items-center justify-between backdrop-blur-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#facf39] flex items-center justify-center shadow-[0_0_30px_-5px_rgba(250,207,57,0.7)]">
-              <iconify-icon icon="lucide:cpu" className="text-black text-2xl"></iconify-icon>
-            </div>
-            <div>
-              <h4 className="text-sm font-extrabold text-white tracking-tight uppercase">AI Assistant</h4>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span className="text-[10px] text-neutral-400 font-bold tracking-widest uppercase">Онлайн</span>
-              </div>
-            </div>
+    <div
+      style={{
+        maxWidth: 400,
+        margin: "0 auto",
+        border: "1px solid #ddd",
+        borderRadius: 8,
+        padding: 16,
+        background: "#fafbfc",
+        fontFamily: "inherit",
+      }}
+    >
+      <h3 style={{ marginTop: 0, marginBottom: 12, textAlign: "center" }}>
+        Связь с инженером
+      </h3>
+      <div
+        style={{
+          minHeight: 200,
+          maxHeight: 320,
+          overflowY: "auto",
+          background: "#fff",
+          border: "1px solid #eee",
+          borderRadius: 6,
+          padding: 8,
+          marginBottom: 12,
+        }}
+      >
+        {messages.length === 0 && (
+          <div style={{ color: "#888", textAlign: "center" }}>
+            Задайте вопрос инженеру…
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/5 text-neutral-500 hover:text-white transition-all duration-200"
+        )}
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            style={{
+              margin: "8px 0",
+              textAlign: msg.role === "user" ? "right" : "left",
+            }}
           >
-            <iconify-icon icon="lucide:x" width="24"></iconify-icon>
-          </button>
-        </div>
-
-        {/* Messages */}
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto p-7 space-y-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20"
-        >
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex gap-3.5 ${
-                msg.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+            <span
+              style={{
+                display: "inline-block",
+                background: msg.role === "user" ? "#e6f7ff" : "#f5f5f5",
+                color: "#222",
+                borderRadius: 6,
+                padding: "6px 12px",
+                maxWidth: "80%",
+                wordBreak: "break-word",
+              }}
             >
-              {msg.role === 'bot' && (
-                <div className="w-9 h-9 rounded-xl bg-[#facf39] flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <iconify-icon icon="lucide:cpu" className="text-black text-base"></iconify-icon>
-                </div>
-              )}
-              <div
-                className={`max-w-[70%] px-5 py-3.5 rounded-2xl text-sm leading-relaxed ${
-                  msg.role === 'user'
-                    ? 'bg-[#facf39] text-black font-semibold rounded-br-none shadow-[0_10px_25px_-10px_rgba(250,207,57,0.4)]'
-                    : 'bg-white/5 text-white backdrop-blur-sm rounded-bl-none border border-white/10'
-                }`}
-              >
-                {msg.text}
-              </div>
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex gap-3.5 justify-start">
-              <div className="w-9 h-9 rounded-xl bg-[#facf39] flex items-center justify-center flex-shrink-0 shadow-lg">
-                <iconify-icon icon="lucide:cpu" className="text-black text-base"></iconify-icon>
-              </div>
-              <div className="px-5 py-3.5 rounded-2xl rounded-bl-none bg-white/5 backdrop-blur-sm border border-white/10 flex gap-1">
-                <span className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                <span className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                <span className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Input */}
-        <div className="p-5 border-t border-white/10 bg-gradient-to-t from-white/[0.02] to-transparent backdrop-blur-sm">
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
-              placeholder="Введите ваше сообщение..."
-              className="flex-1 bg-white/5 text-white placeholder:text-neutral-500 px-5 py-3.5 rounded-2xl border border-white/10 focus:border-[#facf39]/50 focus:outline-none focus:ring-2 focus:ring-[#facf39]/20 transition-all font-normal text-sm"
-              disabled={isLoading}
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              className="w-12 h-12 rounded-2xl bg-[#facf39] hover:bg-[#e8bf35] disabled:bg-neutral-700 disabled:cursor-not-allowed flex items-center justify-center transition-all shadow-lg hover:shadow-[0_10px_25px_-10px_rgba(250,207,57,0.6)] disabled:shadow-none"
-            >
-              <iconify-icon icon="lucide:send" className="text-black text-lg"></iconify-icon>
-            </button>
+              {msg.parts[0].text}
+            </span>
           </div>
-        </div>
+        ))}
+        {loading && (
+          <div style={{ color: "#888", textAlign: "left" }}>
+            Инженер печатает…
+          </div>
+        )}
+        <div ref={chatEndRef} />
       </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input
+          type="text"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleInputKeyDown}
+          placeholder="Введите сообщение…"
+          disabled={loading}
+          style={{
+            flex: 1,
+            padding: "8px 10px",
+            borderRadius: 6,
+            border: "1px solid #ccc",
+            fontSize: 15,
+          }}
+        />
+        <button
+          onClick={sendMessage}
+          disabled={loading || !input.trim()}
+          style={{
+            padding: "8px 16px",
+            borderRadius: 6,
+            border: "none",
+            background: "#1677ff",
+            color: "#fff",
+            fontWeight: 500,
+            cursor: loading || !input.trim() ? "not-allowed" : "pointer",
+          }}
+        >
+          Отправить
+        </button>
+      </div>
+      <button
+        onClick={clearChat}
+        style={{
+          marginTop: 10,
+          background: "none",
+          border: "none",
+          color: "#888",
+          fontSize: 13,
+          cursor: "pointer",
+          textDecoration: "underline",
+        }}
+        disabled={loading}
+      >
+        Очистить чат
+      </button>
     </div>
   );
 };
