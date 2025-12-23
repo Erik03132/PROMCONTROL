@@ -1,6 +1,4 @@
-// api/chat.ts
-
-import { GoogleGenerativeAI, DynamicRetrievalMode } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
@@ -14,12 +12,7 @@ export default async function handler(req: Request): Promise<Response> {
 
   const tools = [
     {
-      googleSearchRetrieval: {
-        dynamicRetrievalConfig: {
-          mode: DynamicRetrievalMode.DYNAMIC, // Важно: используем enum, а не строку!
-          dynamicThreshold: 0.5,
-        },
-      },
+      googleSearch: {}, // новый инструмент для Gemini 2.x
     },
   ];
 
