@@ -53,7 +53,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
       if (data.text) {      setMessages([...newHistory, { role: 'model', parts: [{ text: data.text }] }]);
               } else {
         setMessages([
-          ...newHistory,
+          const data = await res...newHistory,
           {
             role: 'model',
             parts: [{ text: data.error || 'Ошибка: не удалось получить ответ от инженера.' }],
