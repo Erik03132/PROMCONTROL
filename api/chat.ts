@@ -1,8 +1,4 @@
 import { GoogleGenAI } from '@google/genai';
-const genAI = new GoogleGenAI(process.env.API_KEY!);
-const model = genAI.getGenerativeModel({
-  model: 'gemini-2.0-flash-exp',
-});
 
 interface Message {
   role: 'user' | 'model';
@@ -34,16 +30,27 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    // Convert history to Gemini format
-    const convertedHistory = history.map((msg: Message) => ({
+    // Get the last user message
+    const userMessage = history[history.length - 1];
+    if (!userMessage || !userMessage.parts || !userMessage.parts[0]) {
+      res.status(400).json({ error: 'Неверное сообщение' });
+      return;
+    }
+
+    // Initialize Google GenAI with new SDK
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+    // Convert history to new SDK format
+    const contents = history.map((msg: Message) => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: Array.isArray(msg.parts) ? msg.parts : [{ text: '' }],
     }));
 
-    // Generate response
-    const result = await model.generateContent({
-      contents: convertedHistory,
-      generationConfig: {
+    // Generate response using new SDK structure
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-exp',
+      contents: contents,
+      config: {
         temperature: 0.7,
         topP: 0.95,
         topK: 40,
@@ -51,19 +58,15 @@ export default async function handler(req: any, res: any) {
       },
     });
 
-    const text = result.response.text();
+    // Extract text from response
+    const text = response.text || '';
 
-    res.status(200).json({
-      response: text,
-      success: true,
-      timestamp: new Date().toISOString(),
-    });
+    res.status(200).json({ text });
   } catch (error: any) {
     console.error('Chat API Error:', error);
-    
-    res.status(500).json({
-      error: error?.message || 'Ошибка при генерировании ответа',
-      timestamp: new Date().toISOString(),
+    res.status(500).json({ 
+      error: 'Ошибка генерации ответа',
+      details: error.message 
     });
   }
 }
