@@ -1,16 +1,16 @@
 // components/ChatBot.tsx
-import React, { useState, useEffect, useRef } from "react";
-import { X as CloseIcon } from "lucide-react";
+
+import React, { useState, useEffect, useRef } from 'react';
+
+interface ChatBotProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
 
 type Message = {
   role: "user" | "model";
   parts: { text: string }[];
 };
-
-interface ChatBotProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-}
 
 const SESSION_KEY = "chat_history";
 
@@ -22,17 +22,16 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
     }
     return [];
   });
+
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(messages));
     // Scroll to bottom on new message
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  if (!isOpen) return null;
 
   const sendMessage = async () => {
     const trimmed = input.trim();
@@ -43,6 +42,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
     setMessages(newHistory);
     setInput("");
     setLoading(true);
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -91,127 +91,117 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
     sessionStorage.removeItem(SESSION_KEY);
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 0,
-        right: 0,
-        zIndex: 1000,
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "flex-end",
-      }}
-    >
-      {/* Overlay */}
+    <>
+      {/* Backdrop */}
       <div
-        onClick={() => setIsOpen(false)}
         style={{
-          position: "absolute",
+          position: "fixed",
           inset: 0,
-          background: "rgba(0, 0, 0, 0.3)",
+          background: "rgba(0, 0, 0, 0.5)",
+          zIndex: 999,
+          backdropFilter: "blur(4px)",
         }}
+        onClick={() => setIsOpen(false)}
       />
 
-      {/* Chat window */}
+      {/* Chat Modal */}
       <div
         style={{
-          position: "relative",
-          width: 400,
-          maxWidth: "90vw",
-          height: 600,
-          maxHeight: "90vh",
-          background: "#fff",
-          borderRadius: "12px 12px 0 0",
-          boxShadow: "0 -2px 10px rgba(0, 0, 0, 0.2)",
-          display: "flex",
-          flexDirection: "column",
+          position: "fixed",
+          bottom: 20,
+          right: 20,
+          zIndex: 1000,
+          maxWidth: 400,
+          width: "calc(100% - 40px)",
         }}
       >
-        {/* Header */}
         <div
           style={{
-            padding: "16px",
-            borderBottom: "1px solid #eee",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            maxWidth: 400,
+            margin: "0 auto",
+            border: "1px solid #ddd",
+            borderRadius: 8,
+            padding: 16,
+            background: "#fafbfc",
+            fontFamily: "inherit",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           }}
         >
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-            Связь с инженером
-          </h3>
-          <button
-            onClick={() => setIsOpen(false)}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-              color: "#999",
-            }}
-          >
-            <CloseIcon width="24" height="24" />
-          </button>
-        </div>
-
-        {/* Messages */}
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "12px",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          {messages.length === 0 && (
-            <div style={{ color: "#888", textAlign: "center" }}>
-              Задайте вопрос инженеру…
-            </div>
-          )}
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <h3 style={{ marginTop: 0, marginBottom: 0, textAlign: "center", flex: 1 }}>
+              Связь с инженером
+            </h3>
+            <button
+              onClick={() => setIsOpen(false)}
               style={{
-                margin: "8px 0",
-                textAlign: msg.role === "user" ? "right" : "left",
+                background: "none",
+                border: "none",
+                fontSize: 20,
+                cursor: "pointer",
+                padding: 4,
+                lineHeight: 1,
               }}
             >
-              <span
+              ×
+            </button>
+          </div>
+          <div
+            style={{
+              minHeight: 200,
+              maxHeight: 320,
+              overflowY: "auto",
+              background: "#fff",
+              border: "1px solid #eee",
+              borderRadius: 6,
+              padding: 8,
+              marginBottom: 12,
+            }}
+          >
+            {messages.length === 0 && (
+              <div style={{ color: "#888", textAlign: "center" }}>
+                Задайте вопрос инженеру…
+              </div>
+            )}
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
                 style={{
-                  display: "inline-block",
-                  background: msg.role === "user" ? "#e6f7ff" : "#f5f5f5",
-                  color: "#222",
-                  borderRadius: 6,
-                  padding: "6px 12px",
-                  maxWidth: "80%",
-                  wordBreak: "break-word",
+                  margin: "8px 0",
+                  textAlign: msg.role === "user" ? "right" : "left",
                 }}
               >
-                {msg.parts[0].text}
-              </span>
-            </div>
-          ))}
-          {loading && (
-            <div style={{ color: "#888", textAlign: "left" }}>
-              Инженер печатает…
-            </div>
-          )}
-          <div ref={scrollRef} />
-        </div>
-
-        {/* Input */}
-        <div style={{ borderTop: "1px solid #eee", padding: "12px" }}>
-          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    background: msg.role === "user" ? "#e6f7ff" : "#f5f5f5",
+                    color: "#222",
+                    borderRadius: 6,
+                    padding: "6px 12px",
+                    maxWidth: "80%",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {msg.parts[0].text}
+                </span>
+              </div>
+            ))}
+            {loading && (
+              <div style={{ color: "#888", textAlign: "left" }}>
+                Инженер печатает...
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleInputKeyDown}
-              placeholder="Введите сообщение…"
+              placeholder="Введите сообщение..."
               disabled={loading}
               style={{
                 flex: 1,
@@ -228,7 +218,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
                 padding: "8px 16px",
                 borderRadius: 6,
                 border: "none",
-                background: "#1677ff",
+                background: "#1f67ff",
                 color: "#fff",
                 fontWeight: 500,
                 cursor: loading || !input.trim() ? "not-allowed" : "pointer",
@@ -239,8 +229,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
           </div>
           <button
             onClick={clearChat}
-            disabled={loading}
             style={{
+              marginTop: 10,
               background: "none",
               border: "none",
               color: "#888",
@@ -248,12 +238,13 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
               cursor: "pointer",
               textDecoration: "underline",
             }}
+            disabled={loading}
           >
             Очистить чат
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
