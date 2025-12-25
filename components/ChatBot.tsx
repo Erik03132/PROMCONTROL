@@ -49,9 +49,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
       });
 
       const data = await res.json();
-      if (data.response) {
-        setMessages([...newHistory, { role: 'model', parts: [{ text: data.response }] }]);
-      } else {
+      if () {
+      setMessages([...newHistory, { role: 'model', parts: [{ text: data.text }] }]);      } else {
         setMessages([
           ...newHistory,
           {
