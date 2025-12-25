@@ -93,7 +93,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
 
   if (!isOpen) return null;
 
-  return (
+  return((
     <>
       {/* Backdrop */}
       <div
@@ -245,7 +245,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
         </div>
       </div>
     </>
-  );
+));
 };
 
 export default ChatBot;
