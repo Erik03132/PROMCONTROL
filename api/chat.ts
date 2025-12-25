@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface Message {
   role: 'user' | 'model';
@@ -37,20 +37,14 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    // Initialize Google GenAI with new SDK
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Initialize Google Generative AI
+    const genAI = new GoogleGenerativeAI(process.env.API_KEY!);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
-    // Convert history to new SDK format
-    const contents = history.map((msg: Message) => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: Array.isArray(msg.parts) ? msg.parts : [{ text: '' }],
-    }));
-
-    // Generate response using new SDK structure
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
-      contents: contents,
-      config: {
+    // Create chat with history (excluding the last message)
+    const chat = model.startChat({
+      history: history.slice(0, -1),
+      generationConfig: {
         temperature: 0.7,
         topP: 0.95,
         topK: 40,
@@ -58,8 +52,9 @@ export default async function handler(req: any, res: any) {
       },
     });
 
-    // Extract text from response
-    const text = response.text || '';
+    // Send the last message and get response
+    const result = await chat.sendMessage(userMessage.parts[0].text);
+    const text = result.response.text();
 
     res.status(200).json({ text });
   } catch (error: any) {
