@@ -1,5 +1,4 @@
 // components/ChatBot.tsx
-
 import React, { useState, useEffect, useRef } from 'react';
 
 interface ChatBotProps {
@@ -8,65 +7,56 @@ interface ChatBotProps {
 }
 
 type Message = {
-  role: "user" | "model";
+  role: 'user' | 'model';
   parts: { text: string }[];
 };
 
-const SESSION_KEY = "chat_history";
+const SESSION_KEY = 'chat_history';
 
 const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
   const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem(SESSION_KEY);
       return saved ? JSON.parse(saved) : [];
     }
     return [];
   });
 
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(messages));
-    // Scroll to bottom on new message
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const sendMessage = async () => {
     const trimmed = input.trim();
     if (!trimmed || loading) return;
 
-    const userMsg: Message = { role: "user", parts: [{ text: trimmed }] };
+    const userMsg: Message = { role: 'user', parts: [{ text: trimmed }] };
     const newHistory = [...messages, userMsg];
     setMessages(newHistory);
-    setInput("");
+    setInput('');
     setLoading(true);
 
     try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ history: newHistory }),
       });
+
       const data = await res.json();
       if (data.response) {
-        setMessages([
-          ...newHistory,
-          { role: "model", parts: [{ text: data.response }] },
-        ]);
+        setMessages([...newHistory, { role: 'model', parts: [{ text: data.response }] }]);
       } else {
         setMessages([
           ...newHistory,
           {
-            role: "model",
-            parts: [
-              {
-                text:
-                  data.error ||
-                  "Ошибка: не удалось получить ответ от инженера.",
-              },
-            ],
+            role: 'model',
+            parts: [{ text: data.error || 'Ошибка: не удалось получить ответ от инженера.' }],
           },
         ]);
       }
@@ -74,8 +64,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
       setMessages([
         ...newHistory,
         {
-          role: "model",
-          parts: [{ text: "Ошибка соединения с сервером." }],
+          role: 'model',
+          parts: [{ text: 'Ошибка соединения с сервером.' }],
         },
       ]);
     }
@@ -83,7 +73,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") sendMessage();
+    if (e.key === 'Enter') sendMessage();
   };
 
   const clearChat = () => {
@@ -93,74 +83,104 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
 
   if (!isOpen) return null;
 
-return (    <>
-      {/* Backdrop */}
+  return (
+    <>
+      {/* Backdrop - darker for better contrast */}
       <div
         style={{
-          position: "fixed",
+          position: 'fixed',
           inset: 0,
-          background: "rgba(0, 0, 0, 0.5)",
+          background: 'rgba(0, 0, 0, 0.7)',
           zIndex: 999,
-          backdropFilter: "blur(4px)",
+          backdropFilter: 'blur(6px)',
         }}
         onClick={() => setIsOpen(false)}
       />
 
-      {/* Chat Modal */}
+      {/* Chat Modal - Dark theme with gold accents */}
       <div
         style={{
-          position: "fixed",
+          position: 'fixed',
           bottom: 20,
           right: 20,
           zIndex: 1000,
-          maxWidth: 400,
-          width: "calc(100% - 40px)",
+          maxWidth: 420,
+          width: 'calc(100% - 40px)',
         }}
       >
         <div
           style={{
-            maxWidth: 400,
-            margin: "0 auto",
-            border: "1px solid #ddd",
-            borderRadius: 8,
-            padding: 16,
-            background: "#fafbfc",
-            fontFamily: "inherit",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            maxWidth: 420,
+            margin: '0 auto',
+            border: '2px solid #D4AF37',
+            borderRadius: 12,
+            padding: 20,
+            background: '#0a0a0a',
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            boxShadow: '0 8px 32px rgba(212, 175, 55, 0.2), 0 0 20px rgba(0, 0, 0, 0.8)',
+            color: '#e0e0e0',
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <h3 style={{ marginTop: 0, marginBottom: 0, textAlign: "center", flex: 1 }}>
-              Связь с инженером
+          {/* Header */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 16,
+              paddingBottom: 12,
+              borderBottom: '1px solid #D4AF37',
+            }}
+          >
+            <h3
+              style={{
+                marginTop: 0,
+                marginBottom: 0,
+                textAlign: 'center',
+                flex: 1,
+                color: '#D4AF37',
+                fontSize: 18,
+                fontWeight: 600,
+                letterSpacing: '0.5px',
+              }}
+            >
+              ИНЖЕНЕР НА СВЯЗИ
             </h3>
             <button
               onClick={() => setIsOpen(false)}
               style={{
-                background: "none",
-                border: "none",
-                fontSize: 20,
-                cursor: "pointer",
-                padding: 4,
+                background: 'none',
+                border: 'none',
+                fontSize: 28,
+                cursor: 'pointer',
+                padding: '0 4px 2px 4px',
                 lineHeight: 1,
+                color: '#D4AF37',
+                transition: 'opacity 0.2s',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
             >
               ×
             </button>
           </div>
+
+          {/* Messages Container */}
           <div
             style={{
-              minHeight: 200,
-              maxHeight: 320,
-              overflowY: "auto",
-              background: "#fff",
-              border: "1px solid #eee",
-              borderRadius: 6,
-              padding: 8,
-              marginBottom: 12,
+              minHeight: 220,
+              maxHeight: 360,
+              overflowY: 'auto',
+              background: 'rgba(212, 175, 55, 0.05)',
+              border: '1px solid rgba(212, 175, 55, 0.3)',
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 16,
+              scrollBehavior: 'smooth',
             }}
           >
             {messages.length === 0 && (
-              <div style={{ color: "#888", textAlign: "center" }}>
+              <div style={{ color: '#888', textAlign: 'center', fontSize: 14, paddingTop: 60 }}>
                 Задайте вопрос инженеру…
               </div>
             )}
@@ -168,19 +188,27 @@ return (    <>
               <div
                 key={idx}
                 style={{
-                  margin: "8px 0",
-                  textAlign: msg.role === "user" ? "right" : "left",
+                  margin: '10px 0',
+                  textAlign: msg.role === 'user' ? 'right' : 'left',
                 }}
               >
                 <span
                   style={{
-                    display: "inline-block",
-                    background: msg.role === "user" ? "#e6f7ff" : "#f5f5f5",
-                    color: "#222",
-                    borderRadius: 6,
-                    padding: "6px 12px",
-                    maxWidth: "80%",
-                    wordBreak: "break-word",
+                    display: 'inline-block',
+                    background:
+                      msg.role === 'user'
+                        ? 'rgba(212, 175, 55, 0.25)'
+                        : 'rgba(212, 175, 55, 0.1)',
+                    color: msg.role === 'user' ? '#FFE680' : '#c0c0c0',
+                    borderRadius: 8,
+                    padding: '8px 14px',
+                    maxWidth: '85%',
+                    wordBreak: 'break-word',
+                    fontSize: 14,
+                    border:
+                      msg.role === 'user'
+                        ? '1px solid rgba(212, 175, 55, 0.4)'
+                        : '1px solid rgba(212, 175, 55, 0.2)',
                   }}
                 >
                   {msg.parts[0].text}
@@ -188,62 +216,103 @@ return (    <>
               </div>
             ))}
             {loading && (
-              <div style={{ color: "#888", textAlign: "left" }}>
-                Инженер печатает...
+              <div style={{ color: '#888', textAlign: 'left', fontSize: 13, fontStyle: 'italic' }}>
+                Инженер печатает…
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+
+          {/* Input Area */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 10,
+              marginBottom: 12,
+            }}
+          >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleInputKeyDown}
-              placeholder="Введите сообщение..."
+              placeholder="Напишите вопрос…"
               disabled={loading}
               style={{
                 flex: 1,
-                padding: "8px 10px",
+                padding: '10px 12px',
                 borderRadius: 6,
-                border: "1px solid #ccc",
-                fontSize: 15,
+                border: '1px solid #D4AF37',
+                fontSize: 14,
+                background: '#1a1a1a',
+                color: '#e0e0e0',
+                outline: 'none',
+                transition: 'all 0.2s',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#FFD700';
+                e.currentTarget.style.boxShadow = '0 0 8px rgba(212, 175, 55, 0.3)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#D4AF37';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             />
             <button
               onClick={sendMessage}
               disabled={loading || !input.trim()}
               style={{
-                padding: "8px 16px",
+                padding: '10px 18px',
                 borderRadius: 6,
-                border: "none",
-                background: "#1f67ff",
-                color: "#fff",
-                fontWeight: 500,
-                cursor: loading || !input.trim() ? "not-allowed" : "pointer",
+                border: 'none',
+                background: input.trim() && !loading ? '#D4AF37' : '#444',
+                color: input.trim() && !loading ? '#000' : '#888',
+                fontWeight: 600,
+                cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                fontSize: 14,
+                letterSpacing: '0.3px',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading && input.trim()) {
+                  e.currentTarget.style.background = '#FFE680';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.4)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading && input.trim()) {
+                  e.currentTarget.style.background = '#D4AF37';
+                  e.currentTarget.style.boxShadow = 'none';
+                }
               }}
             >
-              Отправить
+              {loading ? 'ОТПРАВКА…' : 'ОТПРАВИТЬ'}
             </button>
           </div>
+
+          {/* Clear Chat Button */}
           <button
             onClick={clearChat}
             style={{
-              marginTop: 10,
-              background: "none",
-              border: "none",
-              color: "#888",
-              fontSize: 13,
-              cursor: "pointer",
-              textDecoration: "underline",
+              marginTop: 8,
+              background: 'none',
+              border: 'none',
+              color: '#888',
+              fontSize: 12,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              transition: 'color 0.2s',
             }}
             disabled={loading}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#D4AF37')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#888')}
           >
             Очистить чат
           </button>
         </div>
       </div>
     </>
-);};
+  );
+};
 
 export default ChatBot;
