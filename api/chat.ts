@@ -55,8 +55,7 @@ export default async function handler(req: any, res: any) {
     // Send the last message and get response
     const result = await chat.sendMessage(userMessage.parts[0].text);
         console.log('Result:', JSON.stringify(result, null, 2));
-    const text = result.response.text();
-        console.log('Extracted text:', text);
+    const text = result.response.candidates[0].content.parts[0].text;        console.log('Extracted text:', text);
 
     res.status(200).json({ text });
   } catch (error: any) {
