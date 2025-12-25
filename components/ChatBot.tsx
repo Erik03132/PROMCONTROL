@@ -50,7 +50,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, setIsOpen }) => {
 
       52
         .json();
-      if (!data.text) {      setMessages([...newHistory, { role: 'model', parts: [{ text: data.text }] }]);
+      if (data.text) {      setMessages([...newHistory, { role: 'model', parts: [{ text: data.text }] }]);
               } else {
         setMessages([
           ...newHistory,
