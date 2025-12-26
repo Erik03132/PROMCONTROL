@@ -39,8 +39,7 @@ export default async function handler(req: any, res: any) {
 
     // Initialize Google Generative AI
     const genAI = new GoogleGenerativeAI(process.env.API_KEY!);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp, tools: [{googleSearchRetrieval: {}}] });}
-
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp', tools: [{googleSearchRetrieval: {}}] });
     // Create chat with history (excluding the last message)
     const chat = model.startChat({
       history: history.slice(0, -1),
