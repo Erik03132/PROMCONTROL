@@ -54,7 +54,7 @@ const data = await res.json();
       if (data.text) {      setMessages([...newHistory, { role: 'model', parts: [{ text: data.text }] }]);
               } else {
         setMessages([
-          const data = await res...newHistory,
+        ...newHistory,
           {
             role: 'model',
             parts: [{ text: data.error || 'Ошибка: не удалось получить ответ от инженера.' }],
