@@ -1,10 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-interface Message {
-  role: 'user' | 'model';
-  parts: Array<{ text: string }>;
-}
-
+// api/chat.ts
 export default async function handler(req: any, res: any) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -37,26 +31,54 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    // Initialize Google Generative AI
-    const genAI = new GoogleGenerativeAI(process.env.API_KEY!);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp', tools: [{googleSearchRetrieval: {}}] });
-    // Create chat with history (excluding the last message)
-    const chat = model.startChat({
-      history: history.slice(0, -1),
-      generationConfig: {
-        temperature: 0.7,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 1024,
-      },
+    // Convert Gemini format to OpenAI format for Perplexity
+    const messages = history.slice(0, -1).map((msg: any) => ({
+      role: msg.role === 'model' ? 'assistant' : msg.role,
+      content: msg.parts[0].text
+    }));
+
+    // Add the last user message
+    messages.push({
+      role: 'user',
+      content: userMessage.parts[0].text
     });
 
-    // Send the last message and get response
-    const result = await chat.sendMessage(userMessage.parts[0].text);
-        console.log('Result:', JSON.stringify(result, null, 2));
-    const text = result.response.candidates[0].content.parts[0].text;
-    console.log('Extracted text:', text);
-    res.status(200).json({ text });
+    // Call Perplexity API
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'sonar',
+        messages: messages,
+        temperature: 0.7,
+        top_p: 0.95,
+        max_tokens: 1024,
+        return_citations: true,
+        return_images: false,
+        search_recency_filter: 'month'
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Perplexity API Error:', errorData);
+      throw new Error(errorData.error?.message || 'API request failed');
+    }
+
+    const data = await response.json();
+    console.log('Perplexity Response:', JSON.stringify(data, null, 2));
+
+    const text = data.choices[0].message.content;
+    const citations = data.citations || [];
+    
+    res.status(200).json({ 
+      text,
+      citations
+    });
+
   } catch (error: any) {
     console.error('Chat API Error:', error);
     res.status(500).json({ 
