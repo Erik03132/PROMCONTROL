@@ -36,13 +36,13 @@ export default async function handler(req: any, res: any) {
     // Convert Gemini format to OpenAI format for Perplexity
     const messages = history.slice(0, -1).map((msg: any) => ({
       role: msg.role === 'model' ? 'assistant' : msg.role,
-      content: msg.parts[0].text
+      content: cleanText(msg.parts[0].text)
     }));
 
     // Add the last user message
     messages.push({
       role: 'user',
-      content: userMessage.parts[0].text
+      content: cleanText(userMessage.parts[0].text)
     });
 
     // Call Perplexity API
