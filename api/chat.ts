@@ -1,5 +1,7 @@
 // api/chat.ts
 export default async function handler(req: any, res: any) {
+   const cleanText = (text: string) => text.replace(/[*_`~]/g, '').trim();
+
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -71,7 +73,7 @@ export default async function handler(req: any, res: any) {
     const data = await response.json();
     console.log('Perplexity Response:', JSON.stringify(data, null, 2));
 
-    const text = data.choices[0].message.content;
+    const text = cleanText(data.choices[0].message.content);
     const citations = data.citations || [];
     
     res.status(200).json({ 
