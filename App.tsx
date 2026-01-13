@@ -5,6 +5,7 @@ import Hero from './components/Hero';
 import DiagramSection from './components/DiagramSection';
 import Metrics from './components/Metrics';
 import Services from './components/Services';
+import FAQ from './components/FAQ';
 import Contact from './components/Contact';
 import TechStack from './components/TechStack';
 import Footer from './components/Footer';
@@ -33,6 +34,7 @@ const App: React.FC = () => {
         <DiagramSection />
         <Metrics />
         <Services />
+        <FAQ />
         <Contact />
         <TechStack />
       </main>

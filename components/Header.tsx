@@ -20,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
 
         <div className="hidden md:flex items-center gap-8 text-xs font-medium text-neutral-300">
           <a href="#services" className="hover:text-white transition-colors duration-200">Услуги</a>
+          <a href="#faq" className="hover:text-white transition-colors duration-200">F.A.Q</a>
           <a href="#contact" className="hover:text-white transition-colors duration-200">Контакты</a>
         </div>
 
